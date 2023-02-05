@@ -12,5 +12,17 @@ class UsersController < ApplicationController
   end
 
   def edit
+    @book = Book.find(params[:id])
   end
+  
+  def update
+    @book = Book.find(params[:id])
+    @user.update(user_params)
+    redirect_to user_path(id: @user.id)
+  end
+  
+  
+  
+  
+  
 end
