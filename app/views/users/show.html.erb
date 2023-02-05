@@ -18,7 +18,7 @@
           <tr>
             <td>
               <%= link_to user_path(book.user.id) do%>
-                <% if book.user.image.attached? %>
+                <% if book.user.profile_image.attached? %>
                   <%= image_tag book.user.get_profile_image(80,80)%>
                 <% else %>
                   <%= image_tag 'default-image', size: "80x80" %>

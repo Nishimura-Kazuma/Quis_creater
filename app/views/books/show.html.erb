@@ -9,7 +9,7 @@
 		    <tr>
           <td>
             <%= link_to user_path(@book_detail.user.id) do%>
-              <% if @book_detail.user.image.attached? %>
+              <% if @book_detail.user.profile_image.attached? %>
                 <%= image_tag @book_detail.user.get_profile_image(100,100)%><br>
               <% else %>
                 <%= image_tag 'default-image', size: "100x100" %><br>
