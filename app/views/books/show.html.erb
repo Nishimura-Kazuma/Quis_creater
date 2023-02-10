@@ -18,6 +18,24 @@
             </td>
             <td><%= link_to @book_detail.title, book_path(@book_detail.id) %></td>
             <td><%= @book_detail.body %></td>
+
+            <% if @book_detail.favorited_by?(current_user) %>
+              <td>
+                <%= link_to book_favorites_path(@book_detail), method: :delete ,class:"text-danger" do %>
+                 <div>
+                   <i class="fas fa-heart"></i><%= @book_detail.favorites.count %>
+                 </div>
+                <% end %>
+              </td>
+              <% else %>
+              <td>
+                <%= link_to book_favorites_path(@book_detail), method: :post do %>
+                  <i class="fas fa-solid fa-heart"></i><%= @book_detail.favorites.count %>
+                <% end %>
+              </td>
+            <% end %>
+
+            <td>コメント数:<%= @book_detail.post_comments.count %></td>
             <% if @book_detail.user == current_user %>
               <td><%= link_to "Edit", edit_book_path(@book_detail.id) ,class:"btn btn-sm btn-success" %></td>
               <td><%= link_to "Destroy", book_path(@book_detail) , method: :delete, data: { confirm: '本当に消しますか？' },class:"btn btn-sm btn-danger" %></td>
@@ -25,6 +43,14 @@
           </tr>
         </tbody>
       </table>
+
+      <div>
+        <%= form_with model: [@book_detail, @post_comment] do |f| %>
+          <%= f.text_area :comment, rows: '5',style: "width:100%", placeholder: "コメントをここに" %>
+          <%= f.submit "送信する" %>
+        <% end %>
+      </div>
+
     </div>
   </div>
 </div>
