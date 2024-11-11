@@ -1,0 +1,2 @@
+module QuizCollectionsHelper
+end

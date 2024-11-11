@@ -7,7 +7,8 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    @book = Book.new
+    @quiz_collection = QuizCollection.new 
+    @quiz_collections = @user.quiz_collections
     @books = @user.books
   end
 

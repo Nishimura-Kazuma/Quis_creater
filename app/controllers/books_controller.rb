@@ -2,23 +2,24 @@ class BooksController < ApplicationController
   # before_action :correct_user, only: [:edit, :update]
 
 
-  def index
-    @user = current_user
-    @books = Book.all
-    @book = Book.new
-  end
+  # def index
+  #   @user = current_user
+  #   @books = Book.all
+  #   @book = Book.new
+  # end
 
   def create
     @book = Book.new(book_params)
     @book.user_id = current_user.id
     if @book.save
       flash[:notice] = "You have created book successfully."
-      redirect_to book_path(@book.id)
+      # redirect_to book_path(@book.id)
+      redirect_to quiz_collection_path(@book.quiz_collection_id)
     else
       @user = current_user
-      @books = Book.all
-      @book = Book.new
-      render :index
+      @quiz_collection = QuizCollection.new 
+      @quiz_collections = @user.quiz_collections
+      redirect_to user_path(@user)
     end
   end
 
@@ -33,7 +34,10 @@ class BooksController < ApplicationController
     @now_user = current_user
     @book = Book.find(params[:id])
     if @now_user != @book.user
-      redirect_to books_path
+      @user = current_user
+      @quiz_collection = QuizCollection.new 
+      @quiz_collections = @user.quiz_collections
+      redirect_to user_path(@user)
     end
   end
 
@@ -52,14 +56,16 @@ class BooksController < ApplicationController
   def destroy
     @book = Book.find(params[:id])
     @book.destroy
-    redirect_to books_path
+    @user = current_user
+    @quiz_collection = @book.quiz_collection
+    redirect_to quiz_collection_path(@quiz_collection)
   end
 
 
   private
   # ストロングパラメータ
   def book_params
-    params.require(:book).permit(:title, :body, :image)
+    params.require(:book).permit(:title, :body, :image, :quiz_collection_id)
   end
 
   # def correct_user

@@ -1,11 +1,12 @@
 class Book < ApplicationRecord
   belongs_to :user
+  belongs_to :quiz_collection
   has_many :favorites, dependent: :destroy
   has_many :book_comments, dependent: :destroy
   
   validates :title, presence: true
   validates :body, presence: true
-  
+  validates :quiz_collection, presence: true
   has_one_attached :image
   
   def favorited_by?(user)

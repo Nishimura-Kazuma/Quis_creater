@@ -4,11 +4,12 @@ class BookCommentsController < ApplicationController
     book = Book.find(params[:book_id])
     comment = current_user.book_comments.new(book_comment_params)
     comment.book_id = book.id
+    quiz_collection = book.quiz_collection
     if comment.save
-      redirect_to book_path(book)
+      redirect_to quiz_collection_path(quiz_collection)
     else
       Rails.logger.info(comment.errors.full_messages) # エラー内容をログに出力
-      redirect_to book_path(book), alert: "Failed to save comment."
+      redirect_to book_path(book), alert: "Failed to save answer."
     end
   end
 

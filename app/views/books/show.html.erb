@@ -4,26 +4,19 @@
       <!-- 問題タイトルと画像 -->
       <h2 class="text-center mb-4">
         <%= @book_detail.title %>
-        <% if @book_detail.user == current_user %>
-          <%= link_to "問題削除", book_path(@book_detail), method: :delete, "data-confirm" => "本当に削除しますか？" ,class: "btn btn-sm btn-danger ml-3" %>
-        <% end %>
       </h2>
       <div class="text-center mb-3">
         <% if @book_detail.image.attached? %>
           <%= image_tag @book_detail.image, size: "500x500", class: "img-fluid" %>
-        <% else %>
-          <!--<%= image_tag 'default-image.jpg', size: "300x300", class: "img-fluid" %>-->
         <% end %>
       </div>
 
       <!-- 問題文 -->
-      
       <p class="lead text-center">
         <%= simple_format(@book_detail.body) %>
       </p>
 
       <!-- 解答エリア -->
-      
       <div class="mt-5">
         <h4>回答一覧</h4>
         <% @book_detail.book_comments.each_with_index do |book_comment, index| %>
@@ -41,11 +34,9 @@
             </div>
             <div class="col-8">
               <div class="p-3 border rounded bg-light d-flex justify-content-between align-items-center">
-                <!-- コメントは左寄せ -->
                 <div class="text-left">
                   <strong>回答 <%= index + 1 %>:</strong> <%= book_comment.comment %>
                 </div>
-                <!-- 削除ボタンと回答時間は右寄せ -->
                 <div class="text-right">
                   <% if book_comment.user == current_user %>
                     <%= link_to "削除", book_book_comment_path(book_comment.book, book_comment), method: :delete, class: "btn btn-sm btn-danger ml-3" %>
@@ -54,13 +45,11 @@
                 </div>
               </div>
             </div>
-
-
           </div>
         <% end %>
         <% end %>
       </div>
-   
+
       <!-- 解答フォーム -->
       <div class="mt-4">
         <h4>解答を入力</h4>
@@ -78,15 +67,40 @@
   </div>
   
   <script>
-  // ページ読み込み時のタイムスタンプを取得
-  const startTime = new Date().getTime();
+  // ページ読み込み時に sessionStorage にタイムスタンプを保存
+  if (!sessionStorage.getItem("startTime")) {
+    sessionStorage.setItem("startTime", new Date().getTime());
+  }
 
-  // フォーム送信時に解答時間を計算して隠しフィールドに設定
   document.addEventListener("submit", function(event) {
-    const answerTime = (new Date().getTime() - startTime) / 1000; // 秒に変換
-    document.getElementById("answer_time_field").value = answerTime.toFixed(3); // 小数点第3位まで
+    // sessionStorage からタイムスタンプを取得
+    const startTime = parseInt(sessionStorage.getItem("startTime"), 10);
+
+    // タイムスタンプが正しく取得できているか確認
+    if (!startTime || isNaN(startTime)) {
+      console.error("タイムスタンプが取得できませんでした。");
+      return;
+    }
+
+    // 解答時間を計算
+    const answerTime = (new Date().getTime() - startTime) / 1000;
+    document.getElementById("answer_time_field").value = answerTime.toFixed(3);
+
+    // フォーム送信後に送信ボタンを無効化して、二重送信を防止
+    const submitButton = event.target.querySelector("input[type='submit']");
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.value = "送信中..."; // ボタンのテキストを変更
+    }
+
+    // タイムスタンプのリセット
+    sessionStorage.removeItem("startTime");
+  });
+
+  // ページを離れる際にもタイムスタンプを削除してリセット
+  window.addEventListener("beforeunload", function() {
+    sessionStorage.removeItem("startTime");
   });
 </script>
 
-  
 </div>
