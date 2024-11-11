@@ -4,8 +4,12 @@ class BookCommentsController < ApplicationController
     book = Book.find(params[:book_id])
     comment = current_user.book_comments.new(book_comment_params)
     comment.book_id = book.id
-    comment.save
-    redirect_to book_path(book)
+    if comment.save
+      redirect_to book_path(book)
+    else
+      Rails.logger.info(comment.errors.full_messages) # エラー内容をログに出力
+      redirect_to book_path(book), alert: "Failed to save comment."
+    end
   end
 
   def destroy
@@ -16,7 +20,7 @@ class BookCommentsController < ApplicationController
   private
 
   def book_comment_params
-    params.require(:book_comment).permit(:comment)
+    params.require(:book_comment).permit(:comment, :answer_time)
   end
 
 end

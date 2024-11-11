@@ -3,13 +3,13 @@
     <%= render 'books/userinfo', user: @user ,book:@book %>
 
       <div class="col-md-8 offset-md-1">
-      <h2>Books</h2>
+      <h2>クイズ一覧</h2>
       <table class="table table-hover table-inverse">
         <thead>
           <tr>
-            <th></th>
-            <th>Title</th>
-            <th>Opinion</th>
+            <th>出題者</th>
+            <th>問題名</th>
+            <th>回答数</th>
             <th colspan="3"></th>
           </tr>
         </thead>
@@ -24,28 +24,29 @@
                     <%= image_tag 'default-image', size: "80x80" %>
                   <% end %>
                 <% end %>
+                <%= book.user.name %>
               </td>
               <td>
                 <%= link_to book.title, book_path(book.id)%>
               </td>
-              <td><%= book.body %></td>
+              <!--<td><%= book.body %></td>-->
               
-              <% if book.favorited_by?(current_user) %>
-                <td>
-                  <%= link_to book_favorites_path(book), method: :delete ,class:"text-danger" do %>
-                   <div>
-                     <i class="fas fa-heart"></i><%= book.favorites.count %>
-                   </div>
-                  <% end %>
-                </td>
-              <% else %>
-                <td>
-                  <%= link_to book_favorites_path(book), method: :post do %>
-                    <i class="fas fa-solid fa-heart"></i><%= book.favorites.count %>
-                  <% end %>
-                </td>
-              <% end %>
-              <td>コメント数:<%= book.book_comments.count %></td>
+              <!--<% if book.favorited_by?(current_user) %>-->
+              <!--  <td>-->
+              <!--    <%= link_to book_favorites_path(book), method: :delete ,class:"text-danger" do %>-->
+              <!--     <div>-->
+              <!--       <i class="fas fa-heart"></i><%= book.favorites.count %>-->
+              <!--     </div>-->
+              <!--    <% end %>-->
+              <!--  </td>-->
+              <!--<% else %>-->
+              <!--  <td>-->
+              <!--    <%= link_to book_favorites_path(book), method: :post do %>-->
+              <!--      <i class="fas fa-solid fa-heart"></i><%= book.favorites.count %>-->
+              <!--    <% end %>-->
+              <!--  </td>-->
+              <!--<% end %>-->
+              <td>回答数:<%= book.book_comments.count %></td>
             </tr>
           <% end %>
         </tbody>

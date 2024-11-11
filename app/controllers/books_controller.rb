@@ -17,7 +17,7 @@ class BooksController < ApplicationController
     else
       @user = current_user
       @books = Book.all
-      @book = @book
+      @book = Book.new
       render :index
     end
   end
@@ -59,7 +59,7 @@ class BooksController < ApplicationController
   private
   # ストロングパラメータ
   def book_params
-    params.require(:book).permit(:title, :body)
+    params.require(:book).permit(:title, :body, :image)
   end
 
   # def correct_user
