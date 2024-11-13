@@ -7,6 +7,7 @@ class Book < ApplicationRecord
   validates :title, presence: true
   validates :body, presence: true
   validates :quiz_collection, presence: true
+  validates :choices_count, presence: true
   has_one_attached :image
   
   def favorited_by?(user)

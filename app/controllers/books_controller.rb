@@ -11,6 +11,11 @@ class BooksController < ApplicationController
   def create
     @book = Book.new(book_params)
     @book.user_id = current_user.id
+    
+    unless current_user.quiz_collections.exists?(id: @book.quiz_collection_id)
+      flash[:alert] = "無効なクイズコレクションです。"
+      redirect_to request.referer || root_path and return
+    end
     if @book.save
       flash[:notice] = "You have created book successfully."
       # redirect_to book_path(@book.id)
@@ -65,7 +70,7 @@ class BooksController < ApplicationController
   private
   # ストロングパラメータ
   def book_params
-    params.require(:book).permit(:title, :body, :image, :quiz_collection_id)
+    params.require(:book).permit(:title, :body, :image, :quiz_collection_id, :choices_count)
   end
 
   # def correct_user
