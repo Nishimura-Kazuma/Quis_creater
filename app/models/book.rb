@@ -10,6 +10,17 @@ class Book < ApplicationRecord
   validates :choices_count, presence: true
   has_one_attached :image
   
+  # デフォルトの position を設定
+  before_create :set_default_position
+
+  def set_default_position
+    if quiz_collection.present?
+      self.position ||= quiz_collection.books.maximum(:position).to_i + 1
+    else
+      self.position = 1
+    end
+  end
+  
   def favorited_by?(user)
     favorites.exists?(user_id: user.id)
   end
@@ -20,6 +31,10 @@ class Book < ApplicationRecord
       image.attach(io: File.open(file_path), filename: 'default-image.jpg', content_type: 'image/jpeg')
     end
     image.variant(resize_to_limit: [width, height]).processed
+  end
+  
+  def next_book
+    quiz_collection.books.where("position > ?", position).order(:position).first
   end
   
 end

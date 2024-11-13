@@ -5,8 +5,17 @@ class BookCommentsController < ApplicationController
     comment = current_user.book_comments.new(book_comment_params)
     comment.book_id = book.id
     quiz_collection = book.quiz_collection
+   
     if comment.save
-      redirect_to quiz_collection_path(quiz_collection)
+      next_book = book.next_book
+      if next_book.present?
+        # 次の問題が存在する場合、その詳細ページにリダイレクト
+        redirect_to book_path(next_book), notice: "回答を送信しました。次の問題に進みます。"
+      else
+        # 次の問題が存在しない場合、クイズコレクションのトップページにリダイレクト
+        redirect_to quiz_collection_path(book.quiz_collection), notice: "クイズが終了しました。お疲れ様でした！"
+      end
+      # redirect_to quiz_collection_path(quiz_collection)
     else
       Rails.logger.info(comment.errors.full_messages) # エラー内容をログに出力
       redirect_to book_path(book), alert: "Failed to save answer."
