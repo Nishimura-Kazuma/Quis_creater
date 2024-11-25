@@ -32,6 +32,16 @@ class QuizCollectionsController < ApplicationController
       redirect_to quiz_collection_path(@quiz_collection)
     end
   end
+  
+  def export
+    @quiz_collection = QuizCollection.find(params[:id])
+    @books = @quiz_collection.books.includes(:book_comments)
+  
+    respond_to do |format|
+      format.xlsx { render xlsx: "export", filename: "quiz_collection_#{@quiz_collection.title}_#{Time.now.strftime('%Y%m%d%H%M')}.xlsx" }
+    end
+  end
+
 
   private
 

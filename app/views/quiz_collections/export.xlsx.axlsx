@@ -1,0 +1,17 @@
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: "Quiz Collection") do |sheet|
+  sheet.add_row ["クイズコレクション名", "クイズ名", "回答内容", "回答者", "回答時間"]
+
+  @books.each do |book|
+    book.book_comments.each do |comment|
+      sheet.add_row [
+        @quiz_collection.title,
+        book.title,
+        comment.comment,
+        comment.user.name,
+        comment.answer_time
+      ]
+    end
+  end
+end

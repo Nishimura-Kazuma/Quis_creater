@@ -5,12 +5,15 @@
 
     <!-- ユーザーのクイズコレクション一覧 -->
     <div class="col-md-8 offset-md-1">
-      <h2><%= @user.name %>の問題集一覧</h2>
+      <h2>
+        <%= link_to @user.name, user_path(@user.id) %> の問題集一覧
+      </h2>
       <table class="table table-hover table-inverse">
         <thead>
           <tr>
             <th>問題集名</th>
             <th>作成日</th>
+            <th>Excel出力</th>
           </tr>
         </thead>
         <tbody>
@@ -20,6 +23,10 @@
                 <%= link_to collection.title, quiz_collection_path(collection.id) %>
               </td>
               <td><%= l collection.created_at, format: :short %></td>
+              <td>
+                <%= link_to "Excelで出力", export_quiz_collection_path(collection, format: :xlsx), class: "btn btn-primary btn-sm" %>
+
+              </td>
             </tr>
           <% end %>
         </tbody>

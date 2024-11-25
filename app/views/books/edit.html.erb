@@ -113,9 +113,9 @@
                 <strong>回答 <%= index + 1 %>:</strong> <%= book_comment.comment %>
               </div>
               <div class="text-right">
-                <% if book_comment.user == current_user %>
-                  <%= link_to "削除", book_book_comment_path(book_comment.book, book_comment), method: :delete, class: "btn btn-sm btn-danger ml-3" %>
-                <% end %>
+               <% if @book.quiz_collection.user == current_user %>
+                <%= link_to "削除", book_book_comment_path(book_comment.book, book_comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-sm btn-danger ml-3" %>
+              <% end %>
                 <span class="ml-2"><%= book_comment.answer_time %></span>
               </div>
             </div>
