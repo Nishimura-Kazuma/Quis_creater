@@ -35,7 +35,9 @@
               <td>
                 <%= link_to book.title, book_path(book.id) %>
               </td>
-              <td><%= book.book_comments.count %></td>
+              <td>
+                <%= book.book_comments.where(user_id: current_user.id).count %>
+              </td>
               <td>
                 <% if book.user == current_user %>
                   <%= link_to "問題編集", edit_book_path(book), class: "btn btn-sm btn-secondary ml-3" %>

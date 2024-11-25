@@ -1,7 +1,45 @@
 <div class="container">
   <div class="row">
+    <!-- 現在の問題内容を表示 -->
+    <div class="col-sm-12 col-md-8 px-5 px-sm-0 mx-auto">
+      <h1>現在の内容を確認</h1>
+      
+      <!-- 問題タイトル -->
+      <h2 class="text-center mb-4">
+        <%= @book.title %> (問 <%= @book.position %> / <%= @book.quiz_collection.books.count %>)
+      </h2>
+
+      <!-- 画像 -->
+      <div class="text-center mb-3">
+        <% if @book.image.attached? %>
+          <%= image_tag @book.image, size: "400x400", class: "img-thumbnail" %>
+        <% else %>
+          <p>画像は設定されていません。</p>
+        <% end %>
+      </div>
+
+      <!-- 問題文 -->
+      <p class="lead text-center">
+        <%= simple_format(@book.body) %>
+      </p>
+
+      <!-- 選択肢 -->
+      <h4>選択肢一覧</h4>
+      <% (1..@book.choices_count).each do |number| %>
+        <div class="form-check">
+          <input type="radio" id="choice_<%= number %>" disabled>
+          <label for="choice_<%= number %>" class="form-check-label"><%= number %></label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- 編集フォーム -->
+  <div class="row">
     <div class="col-sm-12 col-md-8 col-lg-5 px-5 px-sm-0 mx-auto">
-      <h1>Editing Book</h1>
+      <h1>問題を編集</h1>
   
       <% if @book.errors.any? %>
         <h3><%= @book.errors.count %> errors prohibited this obj from being saved:</h3>
@@ -19,13 +57,13 @@
         </div>
   
         <div class="form-group">
-          <%= f.label :body, "Opinion" %>
+          <%= f.label :body, "問題文" %>
           <%= f.text_area :body, class: "form-control book_body" %>
         </div>
         
         <!-- 画像編集フィールド -->
         <div class="form-group">
-          <%= f.label :image, "Image" %>
+          <%= f.label :image, "画像" %>
           <% if @book.image.attached? %>
             <div class="mb-2">
               <%= image_tag @book.image, size: "200x200", class: "img-thumbnail" %>
@@ -34,12 +72,56 @@
           <%= f.file_field :image, accept: "image/*", class: "form-control" %>
         </div>
 
+        <!-- 選択肢数の編集 -->
         <div class="form-group">
-          <%= f.submit 'Update Book', class: "btn btn-success" %>
+          <%= f.label :choices_count, "選択肢の数" %>
+          <%= f.number_field :choices_count, min: 2, max: 10, value: @book.choices_count, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.submit '更新する', class: "btn btn-success" %>
         </div>
       <% end %>
       
-      <%= link_to "Show", book_path(@book.id) %> | <%= link_to "Back", books_path %>
+      <%= link_to "戻る", quiz_collection_path(@book.quiz_collection), class: "btn btn-secondary mt-3" %>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- コメント表示セクション -->
+  <div class="row mt-5">
+    <div class="col-md-10 mx-auto">
+      <h4>回答一覧</h4>
+      <% @book.book_comments.each_with_index do |book_comment, index| %>
+        <div class="row mb-3 align-items-center">
+          <!-- コメント投稿者 -->
+          <div class="col-4 text-center">
+            <%= link_to user_path(book_comment.user.id) do %>
+              <% if book_comment.user.profile_image.attached? %>
+                <%= image_tag book_comment.user.get_profile_image(80, 80), class: "rounded-circle" %>
+              <% else %>
+                <%= image_tag 'default-image.jpg', size: "80x80", class: "rounded-circle" %>
+              <% end %>
+            <% end %>
+            <small><%= book_comment.user.name %></small>
+          </div>
+          <!-- コメント内容 -->
+          <div class="col-8">
+            <div class="p-3 border rounded bg-light d-flex justify-content-between align-items-center">
+              <div class="text-left">
+                <strong>回答 <%= index + 1 %>:</strong> <%= book_comment.comment %>
+              </div>
+              <div class="text-right">
+                <% if book_comment.user == current_user %>
+                  <%= link_to "削除", book_book_comment_path(book_comment.book, book_comment), method: :delete, class: "btn btn-sm btn-danger ml-3" %>
+                <% end %>
+                <span class="ml-2"><%= book_comment.answer_time %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
