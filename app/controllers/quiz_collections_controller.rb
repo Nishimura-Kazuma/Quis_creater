@@ -191,6 +191,74 @@ def export
 end
 
 
+def export_user_based
+  @quiz_collections = QuizCollection.includes(books: { book_comments: :user })
+
+  # Axlsx パッケージ作成
+  package = Axlsx::Package.new
+  workbook = package.workbook
+
+  # 被験者ごとにシートを作成
+  users = @quiz_collections.flat_map { |collection| collection.books.flat_map { |book| book.book_comments.map(&:user) } }.uniq
+
+  users.each do |user|
+    # 各被験者のデータを分ける
+    user_data = { プレテスト: [], ポストテスト: [], 遅延テスト: [], その他: [] }
+
+    @quiz_collections.each do |collection|
+      collection.books.where(include_in_export: true).each do |book| # チュートリアルを除外
+        book.book_comments.where(user: user).order(:created_at).each_with_index do |comment, index|
+          case index
+          when 0 then user_data[:プレテスト] << { book: book, comment: comment }
+          when 1 then user_data[:ポストテスト] << { book: book, comment: comment }
+          when 2 then user_data[:遅延テスト] << { book: book, comment: comment }
+          else        user_data[:その他] << { book: book, comment: comment }
+          end
+        end
+      end
+    end
+
+    # 各テストタイプごとにシートを作成
+    user_data.each do |test_type, data|
+      next if data.empty? && test_type == :その他 # その他のデータがない場合はスキップ
+
+      workbook.add_worksheet(name: "#{user.name}_#{test_type}") do |sheet|
+        # ヘッダー行
+        sheet.add_row ["問題名", "回答", "正誤", "回答時間"]
+
+        # データ行
+        data.each do |entry|
+          book = entry[:book]
+          comment = entry[:comment]
+          correct = comment.comment.to_s.strip == book.correct_answer.to_s.strip ? 1 : 0
+          sheet.add_row [book.title, comment.comment, correct, comment.answer_time]
+        end
+
+        # 集計データをシート下部に追加
+        if data.any?
+          correct_count = data.count { |entry| entry[:comment].comment.to_s.strip == entry[:book].correct_answer.to_s.strip }
+          response_count = data.size
+          total_time = data.sum { |entry| entry[:comment].answer_time.to_f }
+
+          accuracy_rate = response_count > 0 ? (correct_count.to_f / response_count * 100).round(2) : 0
+          average_time = response_count > 0 ? (total_time / response_count).round(2) : 0
+
+          sheet.add_row []
+          sheet.add_row ["正答数", correct_count]
+          sheet.add_row ["正答率(%)", accuracy_rate]
+          sheet.add_row ["平均回答時間", average_time]
+        end
+      end
+    end
+  end
+
+  # ファイルを送信
+  send_data package.to_stream.read,
+            filename: "quiz_collections_user_based_#{Time.now.strftime('%Y%m%d%H%M')}.xlsx",
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+end
+
+
 
 
 

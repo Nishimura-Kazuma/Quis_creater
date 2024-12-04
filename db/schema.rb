@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_25_102521) do
+ActiveRecord::Schema.define(version: 2024_12_04_073757) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(version: 2024_11_25_102521) do
     t.integer "choices_count"
     t.integer "position"
     t.string "correct_answer"
+    t.boolean "include_in_export", default: true
   end
 
   create_table "favorites", force: :cascade do |t|

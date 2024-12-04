@@ -13,7 +13,7 @@
           <tr>
             <th>問題集名</th>
             <th>作成日</th>
-            <th>Excel出力</th>
+            <th>大問ごとのExcel出力</th>
           </tr>
         </thead>
         <tbody>
@@ -24,13 +24,20 @@
               </td>
               <td><%= l collection.created_at, format: :short %></td>
               <td>
-                <%= link_to "Excelで出力", export_quiz_collection_path(collection, format: :xlsx), class: "btn btn-primary btn-sm" %>
-
+                <%= link_to "問題集ごとに出力", export_quiz_collection_path(collection, format: :xlsx), class: "btn btn-primary btn-sm" %>
               </td>
             </tr>
           <% end %>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- 被験者ごとの統合データ出力 -->
+  <div class="row mt-5">
+    <div class="col-md-8 offset-md-1">
+      <h2>被験者ごとの統合データ</h2>
+      <%= link_to "被験者ごとに出力 (全体)", export_user_based_quiz_collections_path(format: :xlsx), class: "btn btn-success btn-lg" %>
     </div>
   </div>
 </div>

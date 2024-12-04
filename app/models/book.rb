@@ -12,6 +12,7 @@ class Book < ApplicationRecord
   
   # デフォルトの position を設定
   before_create :set_default_position
+  after_initialize :set_default_values, if: :new_record?
 
   def set_default_position
     if quiz_collection.present?
@@ -35,6 +36,10 @@ class Book < ApplicationRecord
   
   def next_book
     quiz_collection.books.where("position > ?", position).order(:position).first
+  end
+  
+  def set_default_values
+    self.include_in_export = true if include_in_export.nil?
   end
   
 end

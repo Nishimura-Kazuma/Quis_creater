@@ -25,17 +25,17 @@
             <% if user_signed_in? %>
               <li>
                 <%= link_to user_path(current_user.id) ,class:"nav-link text-light" do%>
-                  <i class="fas fa-home"></i> Home
+                  <i class="fas fa-home"></i>ホーム
                 <% end %>
               </li>
               <li>
                 <%= link_to users_path ,class:"nav-link text-light" do%>
-                  <i class="fas fa-users"></i> Users
+                  <i class="fas fa-users"></i> User一覧
                 <% end %>
               </li>
               <li>
                 <%= link_to quiz_collections_path ,class:"nav-link text-light" do%>
-                  <i class="fas fa-book-open"></i> Quizzes
+                  <i class="fas fa-book-open"></i> Quiz一覧
                 <% end %>
               </li>
               <li>
