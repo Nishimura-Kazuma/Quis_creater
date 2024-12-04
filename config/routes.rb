@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     
     collection do
       get :export_user_based
+      get :export_user_based_with_labels
     end
   end
   resources :quiz_collections, only: [:index, :show, :create, :destroy]

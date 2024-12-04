@@ -6,8 +6,10 @@ class Book < ApplicationRecord
   
   validates :title, presence: true
   validates :body, presence: true
-  validates :quiz_collection, presence: true
+  validates :quiz_collection_id, presence: true
   validates :choices_count, presence: true
+  validates :correct_answer, presence: true
+  validates :include_in_export, presence: true
   has_one_attached :image
   
   # デフォルトの position を設定

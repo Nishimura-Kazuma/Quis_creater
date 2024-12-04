@@ -49,6 +49,11 @@
         <%= f.label :image, "画像" %>
         <%= f.file_field :image, accept: "image/*", class: "w-100" %>
       </div>
+      
+      <div class="form-group">
+        <%= f.label :label, "ラベル (任意)" %>
+        <%= f.text_field :label, class: "form-control", placeholder: "問題をラベリングしたい場合、設定してください。" %>
+      </div>
 
       <!-- Quiz Collection 選択フォーム -->
       <div class="form-group">
