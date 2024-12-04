@@ -70,7 +70,7 @@ class BooksController < ApplicationController
   private
   # ストロングパラメータ
   def book_params
-    params.require(:book).permit(:title, :body, :image, :quiz_collection_id, :choices_count)
+    params.require(:book).permit(:title, :body, :image, :quiz_collection_id, :choices_count, :correct_answer)
   end
 
   # def correct_user

@@ -1,17 +1,13 @@
 wb = xlsx_package.workbook
 
 wb.add_worksheet(name: "Quiz Collection") do |sheet|
-  sheet.add_row ["クイズコレクション名", "クイズ名", "回答内容", "回答者", "回答時間"]
+  # ヘッダー
+  sheet.add_row ["問題名", "回答者", "回答", "正誤", "回答時間"]
 
-  @books.each do |book|
-    book.book_comments.each do |comment|
-      sheet.add_row [
-        @quiz_collection.title,
-        book.title,
-        comment.comment,
-        comment.user.name,
-        comment.answer_time
-      ]
+  # データ出力
+  @output_data.each do |quiz|
+    quiz[:comments].each do |comment|
+      sheet.add_row [quiz[:quiz_name], comment[:user_name], comment[:answer], comment[:correct], comment[:answer_time]]
     end
   end
 end

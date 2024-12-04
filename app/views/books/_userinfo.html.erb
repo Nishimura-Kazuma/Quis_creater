@@ -40,6 +40,10 @@
         <%= f.label :choices_count, "選択肢の数" %>
         <%= f.number_field :choices_count, min: 2, max: 10, value: book.choices_count || 2, class: "form-control" %>
       </div>
+      <div class="form-group">
+        <%= f.label :correct_answer, "正解" %>
+        <%= f.text_field :correct_answer, class: "form-control" %>
+      </div>
 
       <div class="form-group">
         <%= f.label :image, "画像" %>
