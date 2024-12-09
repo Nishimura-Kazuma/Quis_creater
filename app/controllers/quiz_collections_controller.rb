@@ -321,8 +321,8 @@ def export_user_based_with_labels
                            .keys
 
   users.each do |user|
-    # 各被験者のデータをテストタイプとラベルごとに分ける
-    user_data = { プレテスト: {}, ポストテスト: {}, 遅延テスト: {}, その他: {} }
+    # 被験者ごとのデータをラベル単位で整理
+    user_data_by_label = {}
 
     @quiz_collections.each do |collection|
       collection.books.where(include_in_export: true).each do |book| # チュートリアルを除外
@@ -335,44 +335,60 @@ def export_user_based_with_labels
             else        :その他
             end
 
-          # ラベルごとにデータを分類
           label = book.label.presence || "未分類"
-          user_data[test_type][label] ||= [] # ラベルごとの配列を初期化
-          user_data[test_type][label] << { book: book, comment: comment }
+          user_data_by_label[label] ||= {}
+          user_data_by_label[label][book] ||= { プレテスト: nil, ポストテスト: nil, 遅延テスト: nil }
+          user_data_by_label[label][book][test_type] = comment
         end
       end
     end
 
-    # 各テストタイプとラベルごとにシートを作成
-    user_data.each do |test_type, labels|
-      labels.each do |label, data|
-        next if data.empty? # データがない場合はシート作成をスキップ
+    # ラベルごとにシートを作成し、横並びの形式でデータを出力
+    user_data_by_label.each do |label, books_data|
+      workbook.add_worksheet(name: "#{user.name}_#{label}") do |sheet|
+        # ヘッダー行
+        header = ["問題名", "プレテスト_回答", "プレテスト_正誤", "プレテスト_回答時間",
+                  "ポストテスト_回答", "ポストテスト_正誤", "ポストテスト_回答時間",
+                  "遅延テスト_回答", "遅延テスト_正誤", "遅延テスト_回答時間"]
+        sheet.add_row header
 
-        workbook.add_worksheet(name: "#{user.name}_#{test_type}_#{label}") do |sheet|
-          # ヘッダー行
-          sheet.add_row ["問題名", "回答", "正誤", "回答時間"]
+        # 各問題ごとのデータ行
+        books_data.each do |book, test_data|
+          row = [book.title]
 
-          # データ行
-          data.each do |entry|
-            book = entry[:book]
-            comment = entry[:comment]
-            correct = comment.comment.to_s.strip == book.correct_answer.to_s.strip ? 1 : 0
-            sheet.add_row [book.title, comment.comment, correct, comment.answer_time]
+          [:プレテスト, :ポストテスト, :遅延テスト].each do |test_type|
+            comment = test_data[test_type]
+            if comment
+              correct = comment.comment.to_s.strip == book.correct_answer.to_s.strip ? 1 : 0
+              row += [comment.comment, correct, comment.answer_time]
+            else
+              row += [nil, nil, nil]
+            end
           end
 
-          # 集計データをシート下部に追加
+          sheet.add_row row
+        end
+
+        # シート下部に集計データを追加
+        sheet.add_row []
+        sheet.add_row ["テストタイプ別集計"]
+
+        [:プレテスト, :ポストテスト, :遅延テスト].each do |test_type|
+          data = books_data.values.map { |test_data| test_data[test_type] }.compact
           if data.any?
-            correct_count = data.count { |entry| entry[:comment].comment.to_s.strip == entry[:book].correct_answer.to_s.strip }
+            correct_count = data.count { |comment| comment.comment.to_s.strip == comment.book.correct_answer.to_s.strip }
             response_count = data.size
-            total_time = data.sum { |entry| entry[:comment].answer_time.to_f }
+            total_time = data.sum { |comment| comment.answer_time.to_f }
 
             accuracy_rate = response_count > 0 ? (correct_count.to_f / response_count * 100).round(2) : 0
             average_time = response_count > 0 ? (total_time / response_count).round(2) : 0
 
-            sheet.add_row []
-            sheet.add_row ["正答数", correct_count]
-            sheet.add_row ["正答率(%)", accuracy_rate]
-            sheet.add_row ["平均回答時間", average_time]
+            sheet.add_row [
+              test_type.to_s,
+              "正答数: #{correct_count}",
+              "正答率(%): #{accuracy_rate}",
+              "平均回答時間: #{average_time}"
+            ]
           end
         end
       end
@@ -384,6 +400,78 @@ def export_user_based_with_labels
             filename: "quiz_collections_user_based_with_labels_#{Time.now.strftime('%Y%m%d%H%M')}.xlsx",
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 end
+
+
+
+
+
+def export_label_based
+  @quiz_collections = QuizCollection.includes(books: { book_comments: :user })
+
+  # Axlsx パッケージ作成
+  package = Axlsx::Package.new
+  workbook = package.workbook
+
+  # ラベルごとにデータを分類
+  label_data = {}
+
+  @quiz_collections.each do |collection|
+    collection.books.where(include_in_export: true).each do |book|
+      label = book.label.presence || "未分類"
+      label_data[label] ||= []
+
+      book.book_comments.each do |comment|
+        label_data[label] << { book: book, comment: comment }
+      end
+    end
+  end
+
+  # ラベルごとにシートを作成
+  label_data.each do |label, data|
+    workbook.add_worksheet(name: label) do |sheet|
+      # ヘッダー行
+      header = ["被験者名", "問題名", "プレテスト 回答", "プレテスト 正誤", "プレテスト 回答時間",
+                "ポストテスト 回答", "ポストテスト 正誤", "ポストテスト 回答時間",
+                "遅延テスト 回答", "遅延テスト 正誤", "遅延テスト 回答時間"]
+      sheet.add_row header
+
+      # データを整理して追加
+      grouped_data = data.group_by { |entry| entry[:comment].user }
+
+      grouped_data.each do |user, user_data|
+        # 問題ごとにプレテスト、ポストテスト、遅延テストを並べる
+        user_data.group_by { |entry| entry[:book] }.each do |book, comments|
+          pre_comment = comments[0]&.dig(:comment)
+          post_comment = comments[1]&.dig(:comment)
+          delay_comment = comments[2]&.dig(:comment)
+
+          pre_correct = pre_comment&.comment.to_s.strip == book.correct_answer.to_s.strip ? 1 : 0 if pre_comment
+          post_correct = post_comment&.comment.to_s.strip == book.correct_answer.to_s.strip ? 1 : 0 if post_comment
+          delay_correct = delay_comment&.comment.to_s.strip == book.correct_answer.to_s.strip ? 1 : 0 if delay_comment
+
+          sheet.add_row [
+            user.name,
+            book.title,
+            pre_comment&.comment, pre_correct, pre_comment&.answer_time,
+            post_comment&.comment, post_correct, post_comment&.answer_time,
+            delay_comment&.comment, delay_correct, delay_comment&.answer_time
+          ]
+        end
+      end
+    end
+  end
+
+  # ファイルを送信
+  send_data package.to_stream.read,
+            filename: "quiz_collections_label_based_#{Time.now.strftime('%Y%m%d%H%M')}.xlsx",
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+end
+
+
+
+
+
+
 
 
 

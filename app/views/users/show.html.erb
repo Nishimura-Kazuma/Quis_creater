@@ -31,13 +31,19 @@
         </tbody>
       </table>
       <div class="text-center mt-4">
-        <h4>被験者ごとの統合データ</h4>
-        <%= link_to "被験者ごとに出力 (全体)", export_user_based_quiz_collections_path(format: :xlsx), class: "btn btn-info" %>
+        <h4>回答者ごとの統合データ</h4>
+        <%= link_to "回答者ごとに出力 (全体)", export_user_based_quiz_collections_path(format: :xlsx), class: "btn btn-info" %>
       </div>
+      
+      <div class="text-center mt-4">
+        <h4>ラベルごとの統合データ</h4>
+        <%= link_to "ラベルごとに出力 (全体)", export_label_based_quiz_collections_path(format: :xlsx), class: "btn btn-info" %>
+      </div>
+      
       <!-- 被験者ごとのラベル分類データ -->
       <div class="text-center mt-4">
-        <h4>被験者ごと、ラベルごとの統合データ</h4>
-        <%= link_to "ラベルごとに出力 (全体)", export_user_based_with_labels_quiz_collections_path(format: :xlsx), class: "btn btn-info" %>
+        <h4>回答者&ラベルごとの統合データ</h4>
+        <%= link_to "回答者&ラベルごとに出力 (全体)", export_user_based_with_labels_quiz_collections_path(format: :xlsx), class: "btn btn-info" %>
       </div>
     </div>
     
